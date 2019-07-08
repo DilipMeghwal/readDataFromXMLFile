@@ -1,0 +1,39 @@
+Sub Button1_Click()
+Dim XDoc As Object
+    Dim mainWorkBook As Workbook
+    Set mainWorkBook = ActiveWorkbook
+    
+    Set XDoc = CreateObject("MSXML2.DOMDocument")
+    XDoc.async = False: XDoc.validateOnParse = False
+    XDoc.Load (ThisWorkbook.Path & "\test.xml")
+    mainWorkBook.Sheets("Sheet2").Range("A2:Z10000").Clear
+    'Get Document Elements
+    Set lists = XDoc.DocumentElement
+    
+    mainWorkBook.Sheets("Sheet2").Range("A1,B1,C1").Interior.ColorIndex = 40
+    mainWorkBook.Sheets("Sheet2").Range("A1,B1,C1").Borders.Value = 1
+    
+    Dim count
+    i = 0
+    'Traverse all elements 2 branches deep
+    For Each listNode In lists.ChildNodes
+        i = i + 1
+        For Each fieldNode In listNode.ChildNodes
+            Debug.Print "[" & fieldNode.BaseName & "] = [" & fieldNode.Text & "]"
+            If (fieldNode.BaseName = "author") Then
+                mainWorkBook.Sheets("Sheet2").Range("A" & i + 1).Borders.Value = 1
+                mainWorkBook.Sheets("Sheet2").Range("A" & i + 1).Value = "TS_NO_" & i
+                
+                mainWorkBook.Sheets("Sheet2").Range("B" & i + 1).Borders.Value = 1
+                mainWorkBook.Sheets("Sheet2").Range("B" & i + 1).Value = "TS_" & i
+                
+                mainWorkBook.Sheets("Sheet2").Range("C" & i + 1).Borders.Value = 1
+                mainWorkBook.Sheets("Sheet2").Range("C" & i + 1).Value = "TS_DES_" & fieldNode.Text
+            End If
+            
+            
+        Next fieldNode
+    Next listNode
+    
+    Set XDoc = Nothing
+End Sub
